@@ -21,11 +21,24 @@ from variables import (
 )
 
 
-
-
 class PneuRacer:
     """Main class for the PneuRacer project."""
+
+    def wait_for_gamepad(self):
+        """Wait until a gamepad is connected."""
+        cprint.info("Waiting for gamepad connection...")
+        while True:
+            try:
+                events = get_gamepad()
+                if events:
+                    cprint.info("Gamepad connected.")
+                    break
+            except OSError as e:
+                cprint.warn(f"No gamepad detected: {e}")
+                time.sleep(1)  # Wait before retrying
+
     def __init__(self):
+        self.wait_for_gamepad()
         self.pi = pigpio.pi()
         if not self.pi.connected:
             raise ConnectionError("Could not connect to pigpiod. Is it running?")
@@ -81,9 +94,6 @@ class PneuRacer:
                     cprint.info(
                         f"Relay 1 delay adjusted to {self.relay1_delay.value:.1f} seconds"
                     )
-
-        
-
 
 
 if __name__ == "__main__":

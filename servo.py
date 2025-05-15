@@ -16,15 +16,19 @@ class Servo:
         self.__min_value = min_value
         self.__max_value = max_value
         self.__value = None
-        self.start(pigp)
+        self.__servo = None  # Initialize __servo attribute
         try:
+            self.start(pigp)
+            if self.__servo is None:
+                raise ValueError("Servo initialization failed.")
+            
             self.__servo.hardware_PWM(self.__gpio, self.__frequency, 0)
-        except Exception:
-            raise ValueError("The value of the argument gpio is out of range.")
+        except Exception as exc:
+            raise ValueError("The value of the argument gpio is out of range.") from exc
     
     def write(self, value):
         if self.__servo is None:
-            raise Exception("The function start is not being executed.")
+            raise RuntimeError("The function start is not being executed.")
         if value < self.__min_value or value > self.__max_value:
             raise ValueError("The value of the argument value is out of range.")
         self.__value = value
@@ -36,9 +40,10 @@ class Servo:
     
     def stop(self):
         self.__value = None
-        self.__servo.set_mode(self.__gpio, pigpio.INPUT)
-        self.__servo.stop()
-        self.__servo = None
+        if self.__servo is not None:
+            self.__servo.set_mode(self.__gpio, pigpio.INPUT)
+            self.__servo.stop()
+            self.__servo = None
     
     def start(self,pigp:pigpio.pi):
         self.__servo = pigp
