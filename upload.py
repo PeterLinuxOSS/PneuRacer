@@ -9,7 +9,7 @@ def sftp_upload(host,port,username,password,local,remote):
     transport.banner_timeout =200
     sftp = paramiko.SFTPClient.from_transport(transport)
     
-    ignorelist = ["desktop.ini", "__init__.py","__pycache__","nextcord.log", "upload.py","run.bat",".pyc","desktop.ini",".code-workspace",".vscode","logs","backups","legacy.mp4","video","desktop.ini"]
+    ignorelist = ["desktop.ini", "__init__.py","__pycache__","nextcord.log", "upload.py","run.bat",".pyc","desktop.ini",".code-workspace",".vscode","logs","backups","legacy.mp4","video","desktop.ini",".git"]
     if os.path.isdir(local):
         print(os.listdir(local))
         for f in os.listdir(local):
@@ -34,21 +34,20 @@ def sftp_upload(host,port,username,password,local,remote):
     
     channel = transport.open_channel(kind="session") 
     while not channel.exit_status_ready():
-        stdin = channel.exec_command("systemctl restart pneuracer")
+        channel.exec_command("systemctl restart pneuracer")
         channel.close()
-        
-        
-    log_channel = transport.open_channel(kind="session")
-    while not log_channel.exit_status_ready():
-        stdin, stdout, stderr = log_channel.exec_command("journalctl -u pneuracer -f --no-pager")
-        print("Streaming Service Logs:")
-        try:
-            for line in iter(stdout.readline, ""):
-                print(line.strip())
-        except KeyboardInterrupt:
-            print("Log streaming interrupted by user.")
-        finally:
-            log_channel.close()
+
+    # Corrected log streaming logic
+    log_channel = transport.open_session()
+    log_channel.exec_command("journalctl -u pneuracer -f --no-pager")
+    print("Streaming Service Logs:")
+    try:
+        for line in iter(log_channel.makefile('r').readline, ""):
+            print(line.strip())
+    except KeyboardInterrupt:
+        print("Log streaming interrupted by user.")
+    finally:
+        log_channel.close()
 
     transport.close()
  
@@ -57,6 +56,6 @@ def sftp_upload(host,port,username,password,local,remote):
 if __name__ == '__main__': 
     local = os.getcwd() 
     local += "\\"
-    sftp_upload('racer',22,'pneu','1199',local,'/home/pneu/src/')
-    
- 
+    sftp_upload('racer',22,'root','1199',local,'/home/pneu/src/')
+
+

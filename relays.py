@@ -1,14 +1,17 @@
-from variables import VALVE_1_1, VALVE_1_2, VALVE_2_1, VALVE_2_2
-from cprint import cprint
+"""This module contains the relay control process for the pigpio library."""
 import time
-import pigpio
 from multiprocessing.sharedctypes import Synchronized
 
-def relay_control(pi:pigpio.pi, relay1_delay:Synchronized[float]):
+import pigpio
+
+from variables import VALVE_1_1, VALVE_1_2, VALVE_2_1, VALVE_2_2
+
+
+def relay_control(pi:pigpio.pi, relay1_delay:Synchronized):
     """Process function to control relay 1."""
     while True:
         
-        cprint.info("Activating VALVE_2_1 LOW and VALVE_2_2 HIGH")
+        
         pi.write(VALVE_2_1, 0)
         pi.write(VALVE_2_2, 1)
         pi.write(VALVE_1_1, 1)

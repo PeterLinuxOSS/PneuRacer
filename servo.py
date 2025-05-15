@@ -1,3 +1,4 @@
+"""This module contains the servo control process for the pigpio library."""
 import pigpio
 
 class Servo:

@@ -1,3 +1,4 @@
+"""This module contains the variables for pneuracer."""
 VALVE_1_1 = 14
 VALVE_1_2 = 15
 VALVE_2_1 = 23
