@@ -1,6 +1,6 @@
 """This module contains the servo control process for the pigpio library."""
 import pigpio
-
+from typing import Optional
 class Servo:
     def __init__(self, gpio, min_value=0, max_value=180, min_pulse=0.5, max_pulse=2.4, frequency=50,pigp:pigpio.pi=pigpio.pi()):
         if min_pulse < 0:
@@ -16,13 +16,13 @@ class Servo:
         self.__min_value = min_value
         self.__max_value = max_value
         self.__value = None
-        self.__servo = None  # Initialize __servo attribute
+        self.__servo: Optional[pigpio.pi] = None  
         try:
             self.start(pigp)
             if self.__servo is None:
                 raise ValueError("Servo initialization failed.")
-            
-            self.__servo.hardware_PWM(self.__gpio, self.__frequency, 0)
+            else:
+                self.__servo.hardware_PWM(self.__gpio, self.__frequency, 0)
         except Exception as exc:
             raise ValueError("The value of the argument gpio is out of range.") from exc
     

@@ -63,6 +63,7 @@ def sftp_upload(host, port, username, password, local, remote, sftp=None, transp
 if __name__ == '__main__': 
     local = os.getcwd() 
     local += "\\"
-    sftp_upload('racer',22,'root','1199',local,'/home/pneu/src/')
+    print("starting")
+    sftp_upload('192.168.137.50',22,'root','1199',local,'/home/pneu/src/')
 
 
