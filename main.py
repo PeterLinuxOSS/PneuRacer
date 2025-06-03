@@ -119,12 +119,12 @@ class PneuRacer:
                      
                     if event.state == 1:
                         cprint.info("drag race mode activated")
-                        i = 0.5
+                        i = 0.6
                         while i >= 0.2:
                             with self.relay1_delay.get_lock():
                                 self.relay1_delay.value = i
-                            time.sleep(0.5)
-                            i -= 0.1
+                            time.sleep(0.1)
+                            i -= 0.05
                         with self.relay1_delay.get_lock():
                             self.relay1_delay.value 
                     else:

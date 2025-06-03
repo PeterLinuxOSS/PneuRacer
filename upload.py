@@ -1,6 +1,8 @@
 import paramiko
 import os
 import time
+import subprocess
+import re
  
 def sftp_upload(host, port, username, password, local, remote, sftp=None, transport=None):
     close_transport = False
@@ -57,13 +59,38 @@ def sftp_upload(host, port, username, password, local, remote, sftp=None, transp
             log_channel.close()
 
         transport.close()
+
+def find_ip_by_mac(mac_address):
+    """Find the IP address corresponding to a MAC address using the ARP table."""
+    mac_address = mac_address.lower().replace('-', ':')
+    try:
+        output = subprocess.check_output(['arp', '-a'], encoding='utf-8')
+        for line in output.splitlines():
+            # Match lines with IP and MAC
+            match = re.search(r'(\d+\.\d+\.\d+\.\d+)\s+([\w-]+)', line)
+            if match:
+                ip = match.group(1)
+                mac = match.group(2).replace('-', ':').lower()
+                if mac == mac_address:
+                    return ip
+    except Exception as e:
+        print(f"Error finding IP by MAC: {e}")
+    return None
  
 
 
 if __name__ == '__main__': 
     local = os.getcwd() 
     local += "\\"
-    print("starting")
-    sftp_upload('192.168.137.50',22,'root','1199',local,'/home/pneu/src/')
+    print("starting upload from")
+    # Example MAC address, replace with the actual one
+    mac_address = 'B8:27:EB:E6:6B:9D'
+    ip = find_ip_by_mac(mac_address)
+    if ip:
+        print(f"Found IP {ip} for MAC {mac_address}")
+        sftp_upload(ip,22,'root','1199',local,'/home/pneu/src/')
+    else:
+        print(f"Could not find IP for MAC {mac_address}, using default IP")
+        sftp_upload('racer',22,'root','1199',local,'/home/pneu/src/')
 
 
