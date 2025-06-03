@@ -20,6 +20,13 @@ from variables import (
     VALVE_2_2,
     LONG_RANGE_DELAY,
     map_range,
+    DRAG_START,
+    DRAG_MAX,
+    DRAG_STEP,
+    DRAG_STEP_DELAY,
+    BASIC_MIN,
+    BASIC_MAX,
+    
 )
 
 
@@ -89,7 +96,7 @@ class PneuRacer:
                             self.relay1_delay.value = 99
                         else:
                             self.relay1_delay.value = map_range(
-                                pressure, to_min=1, to_max=0.25 # type: ignore
+                                pressure, to_min=BASIC_MIN, to_max=BASIC_MAX # type: ignore
                             )  
                     #cprint.info(
                     #    f"Relay 1 delay adjusted to {self.relay1_delay.value:.1f} seconds"
@@ -119,14 +126,15 @@ class PneuRacer:
                      
                     if event.state == 1:
                         cprint.info("drag race mode activated")
-                        i = 0.6
-                        while i >= 0.2:
+                        i = DRAG_START
+                        
+                        while i >= DRAG_MAX:
                             with self.relay1_delay.get_lock():
                                 self.relay1_delay.value = i
-                            time.sleep(0.1)
-                            i -= 0.05
+                            time.sleep(DRAG_STEP_DELAY)
+                            i -= DRAG_STEP
                         with self.relay1_delay.get_lock():
-                            self.relay1_delay.value 
+                            self.relay1_delay.value = DRAG_MAX
                     else:
                         with self.relay1_delay.get_lock():
                             self.relay1_delay.value = 99
