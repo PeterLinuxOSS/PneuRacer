@@ -26,7 +26,6 @@ from variables import (
     DRAG_STEP_DELAY,
     BASIC_MIN,
     BASIC_MAX,
-    
 )
 
 
@@ -35,14 +34,14 @@ class PneuRacer:
 
     def wait_for_gamepad(self):
         """Wait until a gamepad is connected."""
-        
+
         cprint.info("Waiting for gamepad connection...")
-        
+
         while True:
             if len(inputs.devices.gamepads) > 0:
                 cprint.info("Gamepad detected!")
                 return
-                
+
             else:
                 cprint.warn(f"No gamepad detected")
                 time.sleep(2)  # Wait before retrying
@@ -55,12 +54,14 @@ class PneuRacer:
         self.steerserv = Servo(SERVO_PIN, frequency=SERVO_FREQUENCY, pigp=self.pi)
         self.relay1_delay = Value(ctypes.c_double, 99)
         self.init_relays()
-        self.relay_process = Process(target=relay_control, args=(self.pi, self.relay1_delay), daemon=True)
+        self.relay_process = Process(
+            target=relay_control, args=(self.pi, self.relay1_delay), daemon=True
+        )
 
     def __del__(self):
         self.steerserv.stop()
         self.pi.stop()
-        
+
     def init_relays(self):
         self.pi.set_mode(VALVE_1_1, pigpio.OUTPUT)
         self.pi.set_mode(VALVE_1_2, pigpio.OUTPUT)
@@ -71,14 +72,12 @@ class PneuRacer:
         self.pi.write(VALVE_2_1, 0)
         self.pi.write(VALVE_2_2, 0)
 
-
     def main(self):
         """Main function to handle gamepad events and control the servo and relay."""
-        
+
         cprint.info("Relays initialized.")
         self.relay_process.start()
 
-        
         while True:
             events = get_gamepad()
             for event in events:
@@ -86,22 +85,28 @@ class PneuRacer:
                     pos = map_range(float(event.state))
                     cprint.info(f"{pos:.2f} / {event.state}")
                     self.steerserv.write(pos)
-                    
+
                 elif event.ev_type == "Absolute" and event.code == "ABS_GAS":
                     print(f"ABS_GAS: {event.state}")
                     pressure = float(event.state)
-                    
+
                     with self.relay1_delay.get_lock():
                         if event.state == 0:
                             self.relay1_delay.value = 99
                         else:
                             self.relay1_delay.value = map_range(
-                                pressure, to_min=BASIC_MIN, to_max=BASIC_MAX # type: ignore
-                            )  
-                    #cprint.info(
+                                pressure,
+                                to_min=BASIC_MIN,
+                                to_max=BASIC_MAX,  # type: ignore
+                            )
+                    # cprint.info(
                     #    f"Relay 1 delay adjusted to {self.relay1_delay.value:.1f} seconds"
-                    #)
-                elif event.ev_type == "Key" and event.code == "BTN_START" and event.state == 1:
+                    # )
+                elif (
+                    event.ev_type == "Key"
+                    and event.code == "BTN_START"
+                    and event.state == 1
+                ):
                     cprint.info("release air")
                     self.pi.write(VALVE_1_1, 0)
                     self.pi.write(VALVE_1_2, 0)
@@ -117,17 +122,15 @@ class PneuRacer:
                     self.pi.write(VALVE_1_1, 0)
                     self.pi.write(VALVE_1_2, 0)
                     self.pi.write(VALVE_2_1, 0)
-                    
-                    
+
                     with self.relay1_delay.get_lock():
                         self.relay1_delay.value = 99
-                        
-                elif event.ev_type == "Key" and event.code == "BTN_WEST" : # Button 1
-                     
+
+                elif event.ev_type == "Key" and event.code == "BTN_WEST":  # Button 1
                     if event.state == 1:
                         cprint.info("drag race mode activated")
                         i = DRAG_START
-                        
+
                         while i >= DRAG_MAX:
                             with self.relay1_delay.get_lock():
                                 self.relay1_delay.value = i
@@ -138,8 +141,10 @@ class PneuRacer:
                     else:
                         with self.relay1_delay.get_lock():
                             self.relay1_delay.value = 99
-                    
-                elif event.ev_type == "Key" and event.code == "BTN_TR":   # Long range mode
+
+                elif (
+                    event.ev_type == "Key" and event.code == "BTN_TR"
+                ):  # Long range mode
                     if event.state == 1:
                         cprint.info("Long range mode activated")
                         with self.relay1_delay.get_lock():
@@ -148,7 +153,10 @@ class PneuRacer:
                         with self.relay1_delay.get_lock():
                             self.relay1_delay.value = 99
                 else:
-                    cprint.warn(f"Unhandled event: {event.ev_type} {event.code} {event.state}")
+                    cprint.warn(
+                        f"Unhandled event: {event.ev_type} {event.code} {event.state}"
+                    )
+
 
 if __name__ == "__main__":
     racer = PneuRacer()
