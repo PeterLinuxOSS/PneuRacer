@@ -1,4 +1,4 @@
-# tests/main.py
+# tests/test_main.py
 
 import pytest
 from unittest.mock import patch, MagicMock
