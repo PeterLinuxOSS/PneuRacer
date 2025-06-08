@@ -1,7 +1,3 @@
 pip install -r requirements.txt
+HW: Raspberry pi 3B
 
-WIFI AP
-
-  SSID: PRSM
-
-  PWD: prsm9078
