@@ -84,7 +84,7 @@ class PneuRacer:
                 if event.ev_type == "Absolute" and event.code == "ABS_X":
                     pos = map_range(float(event.state))
                     cprint.info(f"{pos:.2f} / {event.state}")
-                    self.steerserv.write(pos)
+                    self.steerserv.write(180-pos)
 
                 elif event.ev_type == "Absolute" and event.code == "ABS_GAS":
                     print(f"ABS_GAS: {event.state}")
