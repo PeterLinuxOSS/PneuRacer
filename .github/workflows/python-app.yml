@@ -31,7 +31,7 @@ jobs:
         run: python -m pytest --junitxml=tests/report.xml
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-report
           path: tests/report.xml
